@@ -237,7 +237,7 @@ void SoRuleOtnLookupAdd(SFGHASH *so_rule_otn_map, OptTreeNode *otn)
 
     if (otn->sigInfo.otnKey.gid == 0)
     {
-         otn->sigInfo.otnKey.gid = otn->sigInfo.generator;
+         otn->sigInfo.otnKey.gid = otn->sigInfo.generator; 
          otn->sigInfo.otnKey.sid = otn->sigInfo.id;
     }
 

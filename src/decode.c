@@ -3990,6 +3990,7 @@ void DecodeIPV6Extensions(uint8_t next, const uint8_t *pkt, uint32_t len, Packet
 
 //--------------------------------------------------------------------
 // decode.c::IP6 decoder
+//---------lgf------decoder ipv6 2018/08/07
 //--------------------------------------------------------------------
 
 void DecodeIPV6(const uint8_t *pkt, uint32_t len, Packet *p)
@@ -4067,6 +4068,7 @@ void DecodeIPV6(const uint8_t *pkt, uint32_t len, Packet *p)
 
        If we ever start decoding more than 2 layers of IP in a packet, this
        check against p->proto_bits will need to be refactored. */
+     //面向 IPv6 的 IPv4 NAT 网络地址转换穿越 lgf
     if ((p->proto_bits & PROTO_BIT__TEREDO) && (CheckTeredoPrefix(hdr) == 0))
     {
         goto decodeipv6_fail;

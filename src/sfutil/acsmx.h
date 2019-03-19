@@ -57,32 +57,34 @@ typedef struct _acsm_userdata
 
 typedef struct _acsm_pattern {
 
-    struct  _acsm_pattern *next;
-    unsigned char         *patrn;
-    unsigned char         *casepatrn;
-    int      n;
-    int      nocase;
-    int      offset;
-    int      depth;
-    int      negative;
+    struct  _acsm_pattern *next; 
+    unsigned char         *patrn; //模式串
+    unsigned char         *casepatrn; // 大小写敏感
+    int      n;	//模式串的长度
+    int      nocase; //忽略大小写
+    int      offset; //模式串在待匹配的字符串中的偏移
+    int      depth;  //匹配深度
+    int      negative;// 
     ACSM_USERDATA *udata;
-    int      iid;
-    void   * rule_option_tree;
+    int      iid; // 模式串id
+    void   * rule_option_tree; //snort规则选项
     void   * neg_list;
 
 } ACSM_PATTERN;
 
 
+//状态表
+
 typedef struct  {
 
     /* Next state - based on input character */
-    int      NextState[ ALPHABET_SIZE ];
+    int      NextState[ ALPHABET_SIZE ]; //下一个状态
 
     /* Failure state - used while building NFA & DFA  */
-    int      FailState;
+    int      FailState; //失败状态
 
     /* List of patterns that end here, if any */
-    ACSM_PATTERN *MatchList;
+    ACSM_PATTERN *MatchList;  //匹配列表
 
 }ACSM_STATETABLE;
 
@@ -95,13 +97,13 @@ typedef struct {
     int acsmMaxStates;
     int acsmNumStates;
 
-    ACSM_PATTERN    * acsmPatterns;
-    ACSM_STATETABLE * acsmStateTable;
+    ACSM_PATTERN    * acsmPatterns; 	//匹配模式
+    ACSM_STATETABLE * acsmStateTable;	//匹配状态表
 
     int   bcSize;
     short bcShift[256];
 
-    int numPatterns;
+    int numPatterns;	//匹配模式个数
     void (*userfree)(void *p);
     void (*optiontreefree)(void **p);
     void (*neg_list_free)(void **p);

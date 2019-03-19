@@ -1775,6 +1775,7 @@ DAQ_Verdict ProcessPacket(
     setIpsRuntimePolicy(getDefaultPolicy());
 
     /* call the packet decoder */
+	/*-----------------gb2312-------luguifang----snort 包解码入口---*/
     (*grinder) (p, pkthdr, pkt);
     assert(p->pkth && p->pkt);
 
@@ -1816,6 +1817,7 @@ DAQ_Verdict ProcessPacket(
     if ( !(p->packet_flags & PKT_IGNORE) )
     {
         /* start calling the detection processes */
+	/*-----------------gb2312-------luguifang----snort 预处理插件及检测引擎入口---*/
         Preprocess(p);
         log_func(p);
     }
@@ -5262,7 +5264,7 @@ void SnortInit(int argc, char **argv)
         FatalError("%s(%d) Could not initialize decoder action queue memory pool.\n",
                 __FILE__, __LINE__);
     }
-
+	// 创建快速包匹配需要的结构体及数据   ------lgf
     fpCreateFastPacketDetection(snort_conf);
 
 #ifdef INTEL_SOFT_CPM

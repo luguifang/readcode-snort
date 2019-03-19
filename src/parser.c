@@ -901,11 +901,13 @@ SnortConfig * ParseSnortConf(void)
 
     /* Setup the default rule action anchor points
      * Need to do this now in case we get a user defined rule type */
+    //æž„é? é»˜è®¤çš„ç”¨æˆ·è‡ªå®šä¹‰çš„è§„åˆ™ç±»åž‹è¡? ä¸»è¦å¡«å……RuleListNode------lgf
     CreateDefaultRules(sc);
-
+	//´´½¨¹æÔò¶Ë¿ÚÓ³ÉäÁÐ±í
     sc->port_tables = PortTablesNew();
-
+	//------------------ac×´Ì¬»úµÄÒ»Ð©³õÊ¼»¯¹¤×÷-------lgf
     mpseInitSummary();
+	//-----sid gid  ----map
     OtnInit(sc);
 
     /* Used to store "config" configurations */
@@ -1230,7 +1232,7 @@ static void DumpChain(char *name, int mode, int proto)
  * Returns: void function
  *
  ***************************************************************************/
-#if 0  // avoid warning: â€˜DumpListâ€™ defined but not used
+#if 0  // avoid warning: éˆ¥æ¥§umpListéˆ??defined but not used
 static void DumpList(IpAddrNode *idx, int negated)
 {
     DEBUG_WRAP(int i=0;);
@@ -1261,6 +1263,15 @@ static void DumpList(IpAddrNode *idx, int negated)
 
 /*
  * Finish adding the rule to the port tables
+   Íê³É½«¹æÔòÌí¼Óµ½¶Ë¿ÚÁÐ±íÖÐ£º´óÖÂ²½Öè
+   1¡¢ÕÒµ½¸Ã¹æÔòÊôÓÚÄÄÕÅ±í(src/dst/any-any tcp,udp,icmp,ip or nocontent)
+   2¡¢Îªsid:gid×éºÏÕÒµ½Ò»¸öË÷Òý,sid:gid±êÖ¾ÁË¹æÔòµÄÎ¨Ò»ÐÔ
+   3¡¢Ìí¼ÓËùÓÐµÄÃ»ÓÐcontent¹Ø¼ü×ÖµÄ¹æÔòµ½µ¥¶ÀµÄÃ»ÓÐcontent¹Ø¼ü×ÖµÄ¶Ë¿Ú¶ÔÏóÖÐ,ÎÞ¹Ø½ôÒªµÄ¶Ë¿ÚÈÃËû³ÉÎªany-any¶Ë¿Ú¶ÔÏó
+   4¡¢Èç¹ûÊÇÒ»¸öany-anyµÄ¹æÔòÄÇÃ´½«ËûÌí¼Óµ½ any-any¶Ë¿Ú¶ÔÏóÖÐ
+   5¡¢²éÕÒÎÒÃÇÊÇ·ñÓµÓÐÁËÎÒÃÇ¶¨ÒåµÄ¶Ë¿Ú¶ÔÏó£¬Èç¹ûÃ»ÓÐÔò´´½¨Ëü£º
+   		a¡¢ÎªÔ´¶Ë¿Ú¡¢Ä¿µÄ¶Ë¿ÚÖ´ÐÐ´Ë²Ù×÷
+   		b¡¢Îª¶Ë¿Ú¶ÔÏóÖÐµÄ¹æÔòÌí¼ÓË÷Òý
+   		c¡¢Èç¹û¹æÔòÊÇË«ÏòµÄÔòÔ´¶Ë¿Ú¡¢Ä¿µÄ¶Ë¿Ú±íÖÐ¶¼ÐèÒªÌí¼Ó
  *
  * 1) find the table this rule should belong to (src/dst/any-any tcp,udp,icmp,ip or nocontent)
  * 2) find an index for the sid:gid pair
@@ -1352,6 +1363,7 @@ static int FinishPortListRule(rule_port_tables_t *port_tables, RuleTreeNode *rtn
     }
 
     /* Count rules with both src and dst specific ports */
+	//¹æÔòÖÐÔ´¶Ë¿ÚÄ¿µÄ¶Ë¿Ú¶¼±»Ö¸¶¨ÁË
     if (!(rtn->flags & ANY_DST_PORT) && !(rtn->flags & ANY_SRC_PORT))
     {
         DEBUG_WRAP(DebugMessage(DEBUG_PORTLISTS,
@@ -1368,11 +1380,13 @@ static int FinishPortListRule(rule_port_tables_t *port_tables, RuleTreeNode *rtn
     rim_index = otn->ruleIndex;
 
     /* Add up the nocontent rules */
+	/*Ã»ÓÐ¹Ø¼ü×Öcontent µÄ¹æÔò*/
     if (!pe->content && !pe->uricontent)
         prc->nc++;
 
     /* If not an any-any rule test for port bleedover, if we are using a
      * single rule group, don't bother */
+     /*Èç¹û²»ÊÇany-anyµÄ¶Ë¿Ú¹æÔò£¬ÐèÒª¼ì²âÒ»ÏÂ¶Ë¿ÚÊÇ·ñÒç³ö*/
     if (!fpDetectGetSingleRuleGroup(fp) &&
         (rtn->flags & (ANY_DST_PORT|ANY_SRC_PORT)) != (ANY_DST_PORT|ANY_SRC_PORT))
     {
@@ -1413,6 +1427,10 @@ static int FinishPortListRule(rule_port_tables_t *port_tables, RuleTreeNode *rtn
      * any-any port rules...
      * If we have an any-any rule or a large port group or
      * were using a single rule group we make it an any-any rule. */
+     /*
+		Èç¹ûany-any¹æÔò½«¹æÔòË÷ÒýÌí¼Óµ½any-any¶Ë¿Ú¶ÔÏóÖÐ£¬Èç¹ûÊÇany-any¶Ë¿Ú¹æÔòÓÐÃ»ÓÐcontent¹Ø¼ü×Ö¶¼»á×ßÕâ¶ù
+		Èç¹ûÎÒÃÇÓµÓÐÒ»¸öany-any ¹æÔò»òÕßÒ»¸ö´ó¶Ë¿Ú×é »òÕßÎÒÃÇÊ¹ÓÃÁËÒ»¸öµ¥¶ÀµÄ¹æÔò×é£¬ÄÇÃ´ÎÒÃÇÈÃËü³ÉÎªÒ»¸öany-any¹æÔò
+	*/
     if (((rtn->flags & (ANY_DST_PORT|ANY_SRC_PORT)) == (ANY_DST_PORT|ANY_SRC_PORT)) ||
         large_port_group || fpDetectGetSingleRuleGroup(fp))
     {
@@ -1422,6 +1440,10 @@ static int FinishPortListRule(rule_port_tables_t *port_tables, RuleTreeNode *rtn
              * to those protocols.  All IP rules should have any-any port descriptors
              * and fall into this test.  IP rules that are not tcp/udp/icmp go only into the
              * IP table */
+             /*
+             Èç¹ûÎÒÃÇÓ¦ÓÃÁËÕâÐ©Ð­ÒéÄÇÃ´½«ip¹æÔòÌí¼Óµ½½Ì¸ßµÄÓ¦ÓÃÐ­Òé×éÖÐ¡£ËùÓÐµÄip¹æÔòÓ¦¸ÃÓµÓÐÒ»¸öany-any¶Ë¿ÚÃèÊö
+             ²¢ÇÒ¼ÓÈëÕâ¸ö²âÊÔÖÐ¡£Ã»ÓÐtcp/udp/icmpµÄip¹æÔòÖ»»á½øÈëµ½ip±íÖÐ
+			*/
             DEBUG_WRAP(DebugMessage(DEBUG_PORTLISTS,
                                     "Finishing IP any-any rule %u:%u\n",
                                     otn->sigInfo.generator,otn->sigInfo.id););
@@ -1495,9 +1517,11 @@ static int FinishPortListRule(rule_port_tables_t *port_tables, RuleTreeNode *rtn
             }
 
             /* Add the port object to the table, and add the rule to the port object */
+			//Ôö¼ÓÒ»¸ö¶Ë¿Ú¶ÔÏóµ½¶Ë¿Ú±í
             PortTableAddObject(dstTable, pox);
         }
-
+		//½«¹æÔòÌí¼Óµ½ÁË¶Ë¿Ú¶ÔÏóPortObjectµÄrule_list³ÉÔ±ÖÐ£¬ÐÎ³ÉÁË»ù±¾µÄ ¶Ë¿ÚÁÐ±í-->¶Ë¿Ú¶ÔÏó-->¹æÔò¡£
+		
         PortObjectAddRule(pox, rim_index);
 
         /* if bidir, add this rule and port group to the src table */
@@ -1543,6 +1567,7 @@ static int FinishPortListRule(rule_port_tables_t *port_tables, RuleTreeNode *rtn
     }
 
     /* add rule index to src table if we have a specific src port or port list */
+	//Ìí¼Ó¹æÔòË÷Òýµ½Ô´¶Ë¿Ú±íÖÐ£¬Èç¹û¹æÔòÖ¸¶¨ÁËÔ´¶Ë¿Ú»òÕßÔ´¶Ë¿Ú×é
     if (!(rtn->flags & ANY_SRC_PORT))
     {
         PortObject *pox;
@@ -3351,9 +3376,11 @@ static int ProcessIP(SnortConfig *sc, char *addr, RuleTreeNode *rtn, int mode, i
 
         if (rtn->sip == NULL)
         {
+        	/*ÔÚipµØÖ·±äÁ¿±íÀïÑ°ÕÒaddr*/
             sfip_var_t *tmp = sfvt_lookup_var(ip_vartable, addr);
             if (tmp != NULL)
             {
+            	/*µØÖ·±íÀï´æÔÚÁË¾ÍÈ¡³öÀ´ ¸øÏÖÔÚµÄsipÒ»·Ý*/
                 rtn->sip = sfvar_create_alias(tmp, tmp->name);
                 if (rtn->sip == NULL)
                     ret = SFIP_FAILURE;
@@ -3362,6 +3389,7 @@ static int ProcessIP(SnortConfig *sc, char *addr, RuleTreeNode *rtn, int mode, i
             }
             else
             {
+            	/*²»´æÔÚµÄ»¨ÐèÒª°Ñrtn->sip ¼ÓÈëµ½ip_vartableÖÐÈ¥*/
                 rtn->sip = (sfip_var_t *)SnortAlloc(sizeof(sfip_var_t));
                 ret = sfvt_add_to_var(ip_vartable, rtn->sip, addr);
             }
@@ -6010,7 +6038,7 @@ static void ParseInclude(SnortConfig *sc, SnortPolicy *p, char *arg)
     file_name = stored_file_name;
     file_line = stored_file_line;
 }
-
+/*½âÎö¹æÔòÎÄ¼þ*/
 static void ParseConfigFile(SnortConfig *sc, SnortPolicy *p, char *fname)
 {
     /* Used for line continuation */
@@ -6020,7 +6048,7 @@ static void ParseConfigFile(SnortConfig *sc, SnortPolicy *p, char *fname)
     char *buf = (char *)SnortAlloc(MAX_LINE_LENGTH + 1);
     FILE *fp = fopen(fname, "r");
 
-    /* open the rules file */
+    /* open the rules file ´ò¿ªincludeÖÐµÄÅäÖÃ¹æÔòÎÄ¼þ */
     if (fp == NULL)
     {
         ParseError("Unable to open rules file \"%s\": %s.\n",
@@ -9335,6 +9363,11 @@ void ConfigBufferDump(SnortConfig *sc, char *args)
  * Returns: void function
  *
  ***************************************************************************/
+
+/*
+½âÎö¹æÔòalert/drop/...µÈ¹æÔòÀàÐÍÖ®ºóµÄ²¿·Ö
+¸ù¾Ý¹æÔòÀàÐÍÊÇalert/drop/...µÈ½«½âÎöºóµÄ¹æÔò°²²åµ½×ÜµÄÅäÖÃscµÄAlert¡¢Log¡¢µÈÁÐ±íÖÐ
+*/
 static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
                       RuleType rule_type, ListHead *list)
 {
@@ -9346,8 +9379,10 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
     OptTreeNode *otn;
     char *roptions = NULL;
     port_entry_t pe;
-    PortVarTable *portVarTable = p->portVarTable;
+    PortVarTable *portVarTable = p->portVarTable;  
+	// ºÍipµØÖ·ÐÎÊ½Ò»ÖÂÖ»ÊÇÈ¡·¨²»Í¬£¬¶¼»áÔÚÃ¿¸ö²ßÂÔÖÐÎ¬»¤Ò»¸ö×ÜµÄ±äÁ¿±í
     PortTable *nonamePortVarTable = p->nonamePortVarTable;
+
 
     if ((sc == NULL) || (args == NULL))
       return;
@@ -9421,6 +9456,13 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
          * applied instead of checking the flag if we see a "!<ip number>" we
          * need to set a flag so that we can properly deal with it when we are
          * processing packets. */
+
+		/*ipµØÖ·µÄ×éÖ¯ÐÎÊ½£º
+		¸Ã²ßÂÔµÄÃ¿¸ö¹æÔòµÄµØÖ·»á¼Ó¸Ã²ßÂÔµÄip_vartableÖÐ ÐÎÌ¬£º
+		IpaddrSet->IpAddrSet->IpAddrSet
+		
+		*/
+		
         ProcessIP(sc, toks[1], &test_rtn, SRC, 0);
 
         /* Check to make sure that the user entered port numbers.
@@ -9432,6 +9474,14 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
         }
 
         DEBUG_WRAP(DebugMessage(DEBUG_PORTLISTS,"Src-Port: %s\n",toks[2]););
+
+		/*
+			¶Ë¿Ú´¦Àí
+			 TCP/UDP- use src/dst ports
+    		 ICMP   - use icmp type as dst port,src=-1
+ 			 IP     - use protocol as dst port,src=-1
+			
+		*/
 
         if (ParsePortList(&test_rtn, portVarTable, nonamePortVarTable,
                           toks[2], protocol, 0 /* =src port */ ))
@@ -9478,13 +9528,14 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
 
     test_rtn.listhead = list;
 
+	/*´¦Àí¹æÔòÍ·¿éÐÅÏ¢*/
     rtn = ProcessHeadNode(sc, &test_rtn, list);
     /* The IPs in the test node get free'd in ProcessHeadNode if there is
      * already a matching RTN.  The portobjects will get free'd when the
      * port var table is free'd */
 
     DEBUG_WRAP(DebugMessage(DEBUG_CONFIGRULES,"Parsing Rule Options...\n"););
-
+	//´¦Àí¹æÔòÑ¡ÏîÐÅÏ¢
     otn = ParseRuleOptions(sc, rtn, roptions, rule_type, protocol);
     if (otn == NULL)
     {
@@ -9492,7 +9543,7 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
         mSplitFree(&toks, num_toks);
         return;
     }
-
+	// ¹æÔòÊýÁ¿ ++
     rule_count++;
 
     /* Get rule option info */
@@ -9508,6 +9559,7 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
     }
 
     /* See what kind of content is going in the fast pattern matcher */
+	//½øÈë¿ìËÙÄ£Ê½Æ¥ÅäµÄÊÇºÎÖÖÄÚÈÝ
     if (otn->ds_list[PLUGIN_DYNAMIC] != NULL)
     {
         DynamicData *dd = (DynamicData *)otn->ds_list[PLUGIN_DYNAMIC];
@@ -9547,7 +9599,7 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
     pe.proto = protocol;
     pe.rule_type = rule_type;
 
-    port_list_add_entry(&port_list, &pe);
+    port_list_add_entry(&port_list, &pe);//¼Óµ½È«¾ÖµÄport_listÖÐ
 
     /*
      * The src/dst port parsing must be done before the Head Nodes are processed, since they must
@@ -9555,6 +9607,8 @@ static void ParseRule(SnortConfig *sc, SnortPolicy *p, char *args,
      *
      * After otn processing we can finalize port object processing for this rule
      */
+    /*ÐÎ³ÉÍ¨¹ý¶Ë¿ÚÑ°ÕÒ¹ØÁª¹æÔò£¬¿ÉÒÔ²Î¿´º¯ÊýÃèÊö-----ÐèÖØµã¹Ø×¢µÄÄÚÈÝ*/
+	//port_tables ºËÐÄ¶Ë¿Ú±ä
     if (FinishPortListRule(sc->port_tables, rtn, otn, protocol, &pe, sc->fast_pattern_config))
         ParseError("Failed to finish a port list rule.");
 
@@ -9582,21 +9636,28 @@ static RuleTreeNode * ProcessHeadNode(SnortConfig *sc, RuleTreeNode *test_node,
 
     /* if it doesn't match any of the existing nodes, make a new node and
      * stick it at the end of the list */
+    /*
+    	Èç¹ûÃ»ÓÐÆ¥Åäµ½ÈÎºÎÒÑ¾­´æÔÚµÄ½Úµã£¬ÄÇÃ´¾Í»á´´½¨ÐÂµÄ½Úµã£¬²¢°ÑÆ÷°²²åµ½listÎ²²¿
+	*/
     if (rtn == NULL)
     {
         DEBUG_WRAP(DebugMessage(DEBUG_CONFIGRULES,"Building New Chain head node\n"););
 
+		//´´½¨ÐÂ½Úµã
         rtn = (RuleTreeNode *)SnortAlloc(sizeof(RuleTreeNode));
-
+		//¹æÔòÍ·²¿ÒýÓÃÊýÁ¿
         rtn->otnRefCount++;
 
         /* copy the prototype header info into the new header block */
+		//¿½±´¹æÔòÀàÐÍÐÅÏ¢µ½ÐÂµÄ½ÚµãÀï
         XferHeader(test_node, rtn);
 
+		//¹æÔòÍ·²¿¿éµÄÊýÁ¿(tcp any any -> any any)
         head_count++;
         rtn->head_node_number = head_count;
 
         /* initialize the function list for the new RTN */
+		/*Îª¹æÔòÍ·¼ì²âº¯Êý£¨µØÖ·ºÍ¶Ë¿Ú£©ÅäÖÃº¯ÊýÁÐ±í ¼´rtnÖÐµÄrule_func*/
         SetupRTNFuncList(rtn);
 
         /* add link to parent listhead */
@@ -9656,7 +9717,7 @@ static void ParseActivate(SnortConfig *sc, SnortPolicy *p, char *args)
     DEBUG_WRAP(DebugMessage(DEBUG_CONFIGRULES, "Activation rule\n"););
     ParseRule(sc, p, args, RULE_TYPE__ACTIVATE, &sc->Activation);
 }
-
+/*------------------¸ù¾Ý²»Í¬µÄ¹æÔòÀàÐÍ£¬µ÷ÓÃ²»Í¬µÄ½âÎöº¯Êý-----luguifang*/
 static void ParseAlert(SnortConfig *sc, SnortPolicy *p, char *args)
 {
     DEBUG_WRAP(DebugMessage(DEBUG_CONFIGRULES, "Alert\n"););

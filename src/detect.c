@@ -120,7 +120,7 @@ static void DispatchPreprocessors( Packet *p, tSfPolicyId policy_id, SnortPolicy
     p->expectedSession = NULL;
 
     // until we are in a Session context dispatch preprocs from the policy list if there is one
-    p->cur_pp = policy->preproc_eval_funcs;
+    p->cur_pp = policy->preproc_eval_funcs;/*----gb2312-------luguifang----已被注册的预处理函数包括frag3 和strema5 等等---*/
     if( p->cur_pp == NULL )
     {
         alerts_processed = processDecoderAlertsActionQ( p );
@@ -251,10 +251,11 @@ int Preprocess(Packet * p)
         DetectReset(p->data, p->dsize);
 
         // ok, dispatch all preprocs enabled for this packet/session
+        /*-----------------gb2312-------luguifang----snort 预处理插件入口---*/
         DispatchPreprocessors( p, policy_id, policy );
 
         if ( do_detect )
-            Detect(p);
+            Detect(p);/*-----------------gb2312-------luguifang----snort 检测引擎入口---*/
     }
 
     check_tags_flag = 1;
@@ -558,6 +559,7 @@ void CallAlertPlugins(Packet * p, const char *message, Event *event)
  *          0 == no detection
  *
  ***************************************************************************/
+ //---------------------检测入口，通过预先加入的规则检测当前包-------------luguifang
 int Detect(Packet * p)
 {
     int detected = 0;

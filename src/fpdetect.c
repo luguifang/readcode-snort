@@ -1490,6 +1490,7 @@ static inline int fpEvalHeaderUdp(Packet *p, OTNX_MATCH_DATA *omd)
 /*
 **  fpEvalHeaderTcp::
 */
+//检测tcp头
 static inline int fpEvalHeaderTcp(Packet *p, OTNX_MATCH_DATA *omd)
 {
     PORT_GROUP *src = NULL, *dst = NULL, *gen = NULL;
@@ -1502,6 +1503,7 @@ static inline int fpEvalHeaderTcp(Packet *p, OTNX_MATCH_DATA *omd)
         int16_t proto_ordinal = GetProtocolReference(p);
         if (proto_ordinal > 0 && proto_ordinal != SFTARGET_UNKNOWN_PROTOCOL)
         {
+        	 /*根据给定参数的源端口和目的端口决定应根据哪个PORT_RULE_MAP->PORT_GROUP 结构进行匹配*/
             prmFindGenericRuleGroup(snort_conf->prmTcpRTNX, &gen);
 
             if (p->packet_flags & PKT_FROM_SERVER)
@@ -1527,7 +1529,7 @@ static inline int fpEvalHeaderTcp(Packet *p, OTNX_MATCH_DATA *omd)
 #endif
 
     InitMatchInfo(omd);
-
+	// 进入模式特征匹配
     if ( dst )
         fpEvalHeaderSW(dst, p, 1, 0, omd);
     if ( src )
@@ -1632,6 +1634,15 @@ static inline int fpEvalHeaderIp(Packet *p, int ip_proto, OTNX_MATCH_DATA *omd)
 **  FORMAL OUTPUT
 **    int - 0 means that packet has been processed.
 **
+
+	这个函数是Detect()普通的接口，在这儿IP协议被传递进来，如果他是tcp、udp、icmp
+	我们需要针对这些协议在fpEvalHeader中传递其协议特有的规则集合和Ip规则集合。
+	如果这些协议不是tcp、udp或者icmp,我们仅仅在该函数结尾看看数据包是否命中规则。
+	我们为snort规则设定了方法
+	网路层和传输层的规则在相同时间都会生效。对于模块话来讲这并不是最好的，对于性能来将确实最好的
+	这正是我们当前所作的。
+
+
 */
 int fpEvalPacket(Packet *p)
 {

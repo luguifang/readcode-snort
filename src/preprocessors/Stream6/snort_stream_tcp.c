@@ -5828,6 +5828,7 @@ midstream_pickup_allowed:
             cleanup_cache_session_state( scb, &sscc );
             TcpSessionCleanupWithFreeApplicationData(scb);
             cleanup_log_session_state( "new data/reset", &sscc );
+			//------------gb2312--modle:stream6----------step3 track------luguifang---
             status = ProcessTcp( scb, p, &tdb, s5TcpPolicy, hash_node );
 
             STREAM_DEBUG_WRAP(DebugMessage(DEBUG_STREAM_STATE,
@@ -7561,7 +7562,7 @@ static int ProcessTcpData(Packet *p, StreamTracker *listener, TcpSession *tcpssn
         {
             if ( !(tcpssn->scb->ha_state.session_flags & SSNFLAG_STREAM_ORDER_BAD) )
                 p->packet_flags |= PKT_STREAM_ORDER_OK;
-
+			//------------gb2312--modle:stream6----------step5 track------luguifang---
             ProcessTcpStream(listener, tcpssn, p, tdb, s5TcpPolicy);
             /* set flags to session flags */
 
@@ -9412,6 +9413,7 @@ static int ProcessTcp(SessionControlBlock *scb, Packet *p, TcpDataBlock *tdb,
              */
             if ((p->tcph->th_flags != 0) || (s5TcpPolicy->policy == STREAM_POLICY_LINUX) || (s5TcpPolicy->policy == STREAM_POLICY_NOACK))
             {
+            	//------------gb2312--modle:stream6----------step4 track------luguifang---
                 ProcessTcpData(p, listener, tcpssn, tdb, s5TcpPolicy);
                 //Check if all segments are received. Process FIN transition
                 if(checkFINTransitionStatus(p, listener))

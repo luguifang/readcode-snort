@@ -2598,6 +2598,15 @@ static int fpCreatePortTablePortGroups(SnortConfig *sc, PortTable *p, PortObject
  *  note: any-any ports are standard PortObjects not PortObject2's so we have to
  *  uprade them for the create port group function
  */
+
+/*
+	为所有的端口表创建端口组对象
+	any-any端口是标准的PortObjects 不是PortObject2 因此我们有必要通过创建端口组函数升级他们
+	------lgf
+*/
+
+
+
 static int fpCreatePortGroups(SnortConfig *sc, rule_port_tables_t *p)
 {
     PortObject2 *po2, *add_any_any = NULL;
@@ -2608,6 +2617,7 @@ static int fpCreatePortGroups(SnortConfig *sc, rule_port_tables_t *p)
 
     /* TCP */
     /* convert the tcp-any-any to a PortObject2 creature */
+	/*转换tcp-any-any 到PortObject2结构*/
     po2 = PortObject2Dup(p->tcp_anyany);
     if (po2 == NULL)
         FatalError("Could not create a PortObject version 2 for tcp-any-any rules\n!");
@@ -2617,7 +2627,7 @@ static int fpCreatePortGroups(SnortConfig *sc, rule_port_tables_t *p)
 
     if (fpDetectGetDebugPrintRuleGroupBuildDetails(fp))
         LogMessage("TCP-SRC\n");
-
+	/*创建端口表和端口组！！！！------lgf*/
     if (fpCreatePortTablePortGroups(sc, p->tcp_src, add_any_any))
     {
         LogMessage("fpCreatePorTablePortGroups failed-tcp_src\n");
@@ -3322,6 +3332,8 @@ int fpCreateFastPacketDetection(SnortConfig *sc)
 #endif
 
     /* Use PortObjects to create PORT_GROUPs */
+	/*通过端口对象创建端口组------lgf*/
+
     if (fpDetectGetDebugPrintRuleGroupBuildDetails(fp))
         LogMessage("Creating Port Groups....\n");
 
@@ -3331,7 +3343,8 @@ int fpCreateFastPacketDetection(SnortConfig *sc)
     if (fpDetectGetDebugPrintRuleGroupBuildDetails(fp))
         LogMessage("Port Groups Done....\n");
 
-    /* Create rule_maps */
+    /* Create rule_maps ！！！！！！*/
+	/*关键位置 创建规则映射*/
     if (fpDetectGetDebugPrintRuleGroupBuildDetails(fp))
         LogMessage("Creating Rule Maps....\n");
 

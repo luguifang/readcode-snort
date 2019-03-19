@@ -103,12 +103,12 @@ typedef struct {
 }PortObject;
 
 typedef struct  {
-	char           * name;      /* user name - always use strdup or malloc for this*/
+	char           * name;      /*使用strdup和malloc 会使用此字段     user name - always use strdup or malloc for this*/
 	int              id;        /* internal tracking - compiling sets this value */
-    SF_LIST        * item_list; /* list of port and port-range items */
-    SFGHASH        * rule_hash; /* hash of rule (rule-indexes) in use */
-    int              port_cnt;  /* count of ports using this object */
-    BITOP          * bitop;     /* for collecting ports that use this object */
+    SF_LIST        * item_list; /* 端口和端口范围 列表     list of port and port-range items */
+    SFGHASH        * rule_hash; /* 规则hash表      hash of rule (rule-indexes) in use */
+    int              port_cnt;  /*使用该对象的端口数量       count of ports using this object */
+    BITOP          * bitop;     /* 收集使用该对象的端口for collecting ports that use this object */
     void           * data;      /* user data, PORT_GROUP based on rule_hash  */
     void           (*data_free)(void *);
 }PortObject2;
@@ -121,12 +121,16 @@ typedef struct _PortTable_s {
     /* turns on group optimization, better speed-but more memory 
      * otherwise a single merged rule group is used.
      */
+    /*打开组优化，更好的速度但需要更多的内存尤其当使用一个单独合并的规则组时*/
     int pt_optimize;
 
     /* save the users input port objects in this list 
      * rules may be added after creation of a port object
      * but the ports are not modified.
      */
+     /*
+     在该列表中保存用户输入的端口对象，规则也许在创建完端口对象后被添加，但是端口是不允许被修改的
+	*/
     SF_LIST * pt_polist;
     int       pt_poid;
 
@@ -135,22 +139,31 @@ typedef struct _PortTable_s {
     * the associated rule lists are stored in Data elements in rh,
     * the keys are the address of the PortObjects
     */
+    /*
+   数组端口对象指针，指向唯一的端口对象 ，相关的规则列表被存储在rh的Data位置
+   键是端口对象的地址
+	*/
     SF_LIST * pt_port_lists[SFPO_MAX_PORTS];
 
     /* Compiled / merged port object hash table */
+	/*合并端口对象hash表*/
     SFGHASH * pt_mpo_hash;
     SFGHASH * pt_mpxo_hash;
 
     SF_LIST * pt_plx_list;
 
     /*  a single rule list with all rules merged together */
+	/*
+		一个将所有规则合并的单独规则列表
+	*/
     SF_LIST * pt_merged_rule_list; 
 
     /* 
     * Final Port/Rule Groupings, one port object per port, or null
     */
+    /*最后的端口/规则 映射组，一个端口对象一个端口*/
     PortObject2 * pt_port_object[SFPO_MAX_PORTS];
-        
+    /*大组里的规则数量*/
     int pt_lrc; /* large rule count, this many rules is a large group */
 
     /* Stats */

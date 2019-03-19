@@ -617,6 +617,7 @@ static int StreamVerifyConfigPolicy( struct _SnortConfig *sc, tSfPolicyUserConte
 
     stream_conf->verified = true;
     setParserPolicy( sc, policyId );
+	//------------gb2312--modle:stream6----------step1 track------luguifang---
     AddFuncToPreprocList( sc, StreamProcess, PP_STREAM6_PRIORITY, PP_STREAM, proto_flags );
     setParserPolicy( sc, tmp_policy_id );
 
@@ -823,6 +824,7 @@ void StreamProcess(Packet *p, void *context)
         case IPPROTO_TCP:
             if( session_api->protocol_tracking_enabled( SESSION_PROTO_TCP ) )
             {
+            	//------------gb2312--modle:stream6----------step2 track------luguifang---
                 StreamProcessTcp( p, scb, scb->proto_policy, &key );
                 checkOnewayStatus( SESSION_PROTO_TCP, scb );
             }

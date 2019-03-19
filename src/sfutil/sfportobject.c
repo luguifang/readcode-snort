@@ -432,6 +432,7 @@ PortObject2 * PortObject2New(int nrules)
     }
 
     /* Use hash function defined above for hashing the key as an int. */
+	/* 通过之前定义的hash函数，将hash健变成int，设置hash函数 比较函数和映射函数------lgf*/
     sfghash_set_keyops(po->rule_hash, po_rule_hash_func, memcmp);
 
     //sfhashfcn_static( po->rule_hash->sfhashfcn ); /* TODO: Leave this in, else we get different events */
@@ -724,6 +725,10 @@ PortObject2 * PortObject2Dup( PortObject * po )
     int            * prid = NULL;
     int            * prule = NULL;
 
+	/*
+		PortObjectItem主要是端口的属性信息---lgf
+	*/
+
     if( !po )
         return NULL;
 
@@ -759,12 +764,13 @@ PortObject2 * PortObject2Dup( PortObject * po )
               PortObject2Free(ponew);
               return 0;
         }
-
+		/*将新的poinew添加到ProtObject2 的item_list 中*/
         PortObjectAddItem( (PortObject*)ponew, poinew, NULL );
       }
     }
 
     /* Dup the input rule list */
+	/*通过hash操作处理规则索引----lgf*/
     if( po->rule_list )
     {
         for(prid  = (int*)sflist_firstpos(po->rule_list,&lpos);
@@ -1752,6 +1758,7 @@ int PortTableAddObject( PortTable *p, PortObject * po )
 
 
     /* Search for the Port Object in the input list, by address */
+	//通过地址在输入列表中寻找端口对象
     for(pox =(PortObject*)sflist_firstpos(p->pt_polist,&lpos);
         pox!=0;
         pox =(PortObject*)sflist_nextpos(p->pt_polist,&lpos) )
