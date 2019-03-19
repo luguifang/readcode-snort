@@ -5973,6 +5973,7 @@ void ParseRules(SnortConfig *sc)
     /*FindMaxSegSize();*/
 
     /* Compile/Finish and Print the PortList Tables */
+	/*通过fast_pattern_config配置文件优化端口表结构，一个关键的位置！！！----lgf*/
     PortTablesFinish(sc->port_tables, sc->fast_pattern_config);
 
     LogMessage("+-------------------[Rule Port Counts]---------------------------------------\n");
@@ -6705,7 +6706,16 @@ void ConfigDefaultRuleState(SnortConfig *sc, char *args)
         sc->default_rule_state = RULE_STATE_ENABLED;
     }
 }
+/*
+配置检测引擎的地方
+对配置文件以下配置配置项对FastPatternConfig结构体进行一些配置
 
+config detection: [search-method <method>]
+config detection: [split-any-any] [search-optimize] [max-pattern-len <int>]
+config detection: [no stream inserts] [max queue events <int>] [enable-single-rule-group] [bleedover-port-limit]
+
+
+*/
 void ConfigDetection(SnortConfig *sc, char *args)
 {
     int i;
@@ -6737,15 +6747,18 @@ void ConfigDetection(SnortConfig *sc, char *args)
 
     for (i = 0; i < num_toks; i++)
     {
+    	/*是否进行搜索优化,当使用ac或者ac-split搜索算法时基于所有状态的数量来动态的决定状态的大小---lgf*/
         if (strcasecmp(toks[i], DETECTION_OPT__SEARCH_OPTIMIZE) == 0)
         {
             fpSetDetectSearchOpt(fp, 1);
         }
+		/*是否把所有规则放到一个端口组中，默认情况下不这样做-----lgf*/
         else if (strcasecmp(toks[i], DETECTION_OPT__ENABLE_SINGLE_RULE_GROUP) == 0)
         {
             fpDetectSetSingleRuleGroup(fp);
             LogMessage("Using Single-Rule-Group Detection\n");
         }
+		/*以下几个都是针对debug 信息的配置------lgf*/
         else if (strcasecmp(toks[i], DETECTION_OPT__DEBUG_PRINT_NOCONTENT_RULE_TESTS) == 0)
         {
             fpDetectSetDebugPrintNcRules(fp);
@@ -6766,6 +6779,8 @@ void ConfigDetection(SnortConfig *sc, char *args)
         {
             fpSetDebugMode(fp);
         }
+		/*指定当进行流插入时数据包不被引擎评估，重建的流里将会包含某个插入包的负载，因此被插入到
+		重建流里的包是不需要引擎进行评估的，这是一个潜在的性能提升，默认是需要检测插入流的数据包的-----lgf*/
         else if (strcasecmp(toks[i], DETECTION_OPT__NO_STREAM_INSERTS) == 0)
         {
             fpSetStreamInsert(fp);
@@ -6775,6 +6790,7 @@ void ConfigDetection(SnortConfig *sc, char *args)
         {
             fpDetectSetBleedOverWarnings(fp);
         }
+		/*配置搜索算法*/
         else if (strcasecmp(toks[i], DETECTION_OPT__SEARCH_METHOD) == 0)
         {
             i++;
@@ -6790,6 +6806,7 @@ void ConfigDetection(SnortConfig *sc, char *args)
                 ParseError("Need an argument to 'search-method'.");
             }
         }
+		/*当规则中的源端口或者目的端口数量限制*/
         else if (strcasecmp(toks[i], DETECTION_OPT__BLEEDOVER_PORT_LIMIT) == 0)
         {
             i++;
@@ -6812,6 +6829,7 @@ void ConfigDetection(SnortConfig *sc, char *args)
                 ParseError("Missing port-count argument to 'bleedover_port_limit'.");
             }
         }
+		/*命中的模式串数量限制 -----lgf*/
         else if (strcasecmp(toks[i], DETECTION_OPT__MAX_QUEUE_EVENTS) == 0)
         {
             i++;
@@ -6834,10 +6852,12 @@ void ConfigDetection(SnortConfig *sc, char *args)
                 ParseError("Missing argument to 'max_queue_events'.");
             }
         }
+		/*是否开启split-any-any*/
         else if (strcasecmp(toks[i], DETECTION_OPT__SPLIT_ANY_ANY) == 0)
         {
             fpDetectSetSplitAnyAny(fp, 1);
         }
+		/*开启匹配模式长度限制*/
         else if (strcasecmp(toks[i], DETECTION_OPT__MAX_PATTERN_LEN) == 0)
         {
             i++;

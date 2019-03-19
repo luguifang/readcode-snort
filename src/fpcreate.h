@@ -87,17 +87,22 @@ typedef struct _NCListNode
 */
 typedef struct _FastPatternConfig
 {
-    int inspect_stream_insert;
-    int search_method;
-    int search_opt;
+    int inspect_stream_insert; //进行流插入时数据包不被引擎评估
+    int search_method; //模式匹配方法
+    int search_opt;	//是否进行优化搜索的标志位
     int search_method_verbose;
     int debug;
-    unsigned int max_queue_events;
-    unsigned int bleedover_port_limit;
+    unsigned int max_queue_events;//一次可以命中的模式串数量 默认5条
+    unsigned int bleedover_port_limit;//当规则中的源端口或者目的端口最大达到多少是将会考虑将其加入到any-any端口组中 默认1024
     int configured;
-    int portlists_flags;
+    int portlists_flags;  //端口列表标志位
     int split_any_any;
-    int max_pattern_len;
+	/*split_any_any 标志是内存和性能的权衡，默认情况下any-any端口规则被添加到每个
+	非any-any端口组中使得每个包仅被一个端口组规则评估。在没有很多any-any端口规则的情况下，如果不把any-any端口规则添加到每个其他的端口规则组中,可以有效减少模式匹配
+	所带来的内存占用的开销，但是这样做的话每个包就需要进行来个端口组的评估(一个是指定的端口组一个是any-any端口组)因此会比较明显的降低性能
+	这个选项是通用的可以被任何搜索算法使用，尽管专门用于模式匹配的ac算法整体快速模式性能优于ac-bnfa，但内存占用量会显着减少。需要注意的将低的内存占用由于由较低的cache miss，
+	也会带来性能的提升*/
+    int max_pattern_len; //匹配模式长度
     int num_patterns_truncated;  /* due to max_pattern_len */
     int num_patterns_trimmed;    /* due to zero byte prefix */
     int debug_print_fast_pattern;

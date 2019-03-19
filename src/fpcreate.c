@@ -2627,7 +2627,8 @@ static int fpCreatePortGroups(SnortConfig *sc, rule_port_tables_t *p)
 
     if (fpDetectGetDebugPrintRuleGroupBuildDetails(fp))
         LogMessage("TCP-SRC\n");
-	/*创建端口表和端口组！！！！------lgf*/
+	
+	/*创建端口表和端口组,在这一步会组织一些关键的数据结构------lgf*/
     if (fpCreatePortTablePortGroups(sc, p->tcp_src, add_any_any))
     {
         LogMessage("fpCreatePorTablePortGroups failed-tcp_src\n");
