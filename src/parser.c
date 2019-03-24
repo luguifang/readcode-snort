@@ -11511,6 +11511,7 @@ static void port_list_free( port_list_t * plist)
 /* Finish processing/setup Port Tables */
 static void finish_portlist_table(FastPatternConfig *fp, char *s, PortTable *pt)
 {
+	/*排序规则索引并且保证索引唯一性*/
     PortTableSortUniqRules(pt);
 
     if( fpDetectGetDebugPrintRuleGroupsUnCompiled(fp) )
@@ -11518,7 +11519,7 @@ static void finish_portlist_table(FastPatternConfig *fp, char *s, PortTable *pt)
         LogMessage("***\n***Port-Table : %s Ports/Rules-UnCompiled\n",s);
         PortTablePrintInputEx( pt, rule_index_map_print_index );
     }
-
+	/*构建一组Port + Rule对象--------lgf*/
     PortTableCompile( pt );
 
     if( fpDetectGetDebugPrintRuleGroupsCompiled(fp) )

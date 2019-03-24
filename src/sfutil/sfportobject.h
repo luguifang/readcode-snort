@@ -108,7 +108,7 @@ typedef struct  {
     SF_LIST        * item_list; /* 端口和端口范围 列表     list of port and port-range items */
     SFGHASH        * rule_hash; /* 规则hash表      hash of rule (rule-indexes) in use */
     int              port_cnt;  /*使用该对象的端口数量       count of ports using this object */
-    BITOP          * bitop;     /* 收集使用该对象的端口for collecting ports that use this object */
+    BITOP          * bitop;     /* for collecting ports that use this object 收集使用该对象的端口 通过bit 8192个标志位标志某个端口*/
     void           * data;      /* user data, PORT_GROUP based on rule_hash  */
     void           (*data_free)(void *);
 }PortObject2;
